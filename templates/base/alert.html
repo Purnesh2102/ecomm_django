@@ -1,0 +1,21 @@
+
+
+{% comment %} {% if messages %}
+{% for message in messages %}
+<div class="alert alert-warning alert-dismissible fade show {% if message.tags %}{{ message.tags }}{% endif %}" role="alert">
+    <strong>{{ message }}!</strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+{% endif %} {% endcomment %}
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}" role="alert">
+ {{message}}
+ 
+  </div>
+  {% endfor %}
+{% endif %}

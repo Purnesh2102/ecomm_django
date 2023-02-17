@@ -1,0 +1,148 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<!--Hero Section-->
+<div class="hero-section hero-background">
+    <h1 class="page-title">Organic Fruits</h1>
+</div>
+
+<!--Navigation section-->
+<div class="container">
+    <nav class="biolife-nav">
+        <ul>
+            <li class="nav-item"><a href="{% url 'index' %}" class="permal-link">Home</a></li>
+            <li class="nav-item"><span class="{% url 'cart' %}">ShoppingCart</span></li>
+        </ul>
+    </nav>
+</div>
+
+<div class="page-contain checkout">
+    <!-- Main content -->
+    <div id="main-content" class="main-content">
+        <div class="container sm-margin-top-37px">
+            <div class="row">
+
+                <!--Order Summary-->
+                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 sm-padding-top-48px sm-margin-bottom-0 xs-margin-bottom-15px">
+                    <div class="order-summary sm-margin-bottom-80px">
+                        <div class="title-block">
+                            <h3 class="title">Order Summary</h3>
+                            {% comment %} <a href="#" class="link-forward">Edit cart</a> {% endcomment %}
+                        </div>
+                        <div class="cart-list-box short-type">
+                            <span class="number">{{request.user.profile.get_cart_count}} items</span>
+                            <ul class="cart-list">
+                                {% for cart_item in cart.cart_items.all %}
+                                <li class="cart-elem">
+                                    <div class="cart-item">
+                                        <div class="product-thumb">
+                                            <a class="prd-thumb" href="#">
+                                                <figure><img src="/media/{{cart_item.product.product_images.first.product_image}}" width="113" height="113" alt="shop-cart" ></figure>
+                                            </a>
+                                        </div>
+                                        <div class="info">
+                                            <span class="txt-quantity">1X</span>
+                                            <a href="#" class="pr-name">{{ cart_item.product.product_name }}</a>
+                                        </div>
+                                        <div class="price price-contain">
+                                            <ins><span class="price-amount"><span class="currencySymbol">$</span>{{ cart_item.get_product_price }}</span></ins>
+                                            <del><span class="price-amount"><span class="currencySymbol">$</span>95.00</span></del>
+                                        </div>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <div class="action">
+                                            <a href="{% url 'remove_cart' cart_item.uid %}" class="remove"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            <ul>
+                                {% comment %} <li>
+                                    <div class="subtotal-line">
+                                        <b class="stt-name">Subtotal</b>
+                                        <span class="stt-price">£170.00</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="subtotal-line">
+                                        <b class="stt-name">Shipping</b>
+                                        <span class="stt-price">$20.00</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="subtotal-line">
+                                        <b class="stt-name">Tax</b>
+                                        <span class="stt-price">$0.00</span>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="subtotal-line">
+                                        <a href="#" class="link-forward">Promo/Gift Certificate</a>
+                                    </div>
+                                </li> {% endcomment %}
+                                <li>
+                                    <div class="subtotal-line">
+                                        <b class="stt-name">total:</b>
+                                        <span class="stt-price">${{ cart.get_cart_total }}</span>
+                                        
+                                    </div>
+                                </li>
+                                <br>
+                                <div class="form-row">
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        <p class="form-row">
+                                            <button id="rzp-button1" class="btn btn-success" name="btn-sbmt">Pay Now</button>
+                                        </p>
+                                    </form>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+  <!-- Razorpay's Javascript code. -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script>
+    var options = {
+        'key': "{{razorpay_key}}",
+        'amount': "{{payment.amount}}", 
+        'currency': "INR",
+        'name': "Biolife",
+        'description': "Biolife Ecomm",
+        'image': "",
+        'order_id': "{{payment.id}}",
+        'handler': function (response){
+            window.location.href = 'http://127.0.0.1:8000/accounts/success/?order_id={{ payment.id }}'
+        },
+        'prefill':{
+            'name': 'Purnesh',
+            'email': 'purnesh@gmail.com',
+            'contact': '9999999999',
+        },
+        'theme': {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+    })
+    document.getElementById('rzp-button1').onclick = function(e){
+        rzp1.open();
+        e.preventDefault();
+    }
+    </script>
+{% endblock %}
